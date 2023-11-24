@@ -20,7 +20,9 @@ from pathlib import Path
 
 import torch
 
-from ced_model import CedConfig, CedFeatureExtractor, CedForAudioClassification
+from ced_model.configuration_ced import CedConfig
+from ced_model.feature_extraction_ced import CedFeatureExtractor
+from ced_model.modeling_ced import CedForAudioClassification
 from transformers.utils import logging
 
 
