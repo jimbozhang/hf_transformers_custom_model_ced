@@ -1,13 +1,4 @@
----
-license: apache-2.0
-datasets:
-- AudioSet
-metrics:
-- mAP
-pipeline_tag: audio-classification
----
-
-# Pretrained CED on HuggingFace
+# Pretrained CED on Hugging Face
 
 CED are simple ViT-Transformer-based models for audio tagging. Notable differences from other available models include:
 1. Simplification for finetuning: Batchnormalization of Mel-Spectrograms. During finetuning one does not need to first compute mean/variance over the dataset, which is common for AST.
@@ -21,6 +12,7 @@ Augmentation and knowledge distillation (KD) are well-established techniques emp
 
 ### Model Sources
 
+- **Model Cards:** https://huggingface.co/models?search=mispeech%2Fced
 - **Original Repository:** https://github.com/RicherMans/CED
 - **Paper:** [CED: Consistent ensemble distillation for audio tagging](https://arxiv.org/abs/2308.11957)
 - **Demo:** https://huggingface.co/spaces/mispeech/ced-base
