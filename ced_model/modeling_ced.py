@@ -457,9 +457,7 @@ class CedModel(CedPreTrainedModel):
             n_splits = 1
 
         x = self.forward_features(x)
-        if n_splits > 1:
-            x = torch.flatten(x, 0, 1)
-            x = torch.unsqueeze(x, 0)
+        x = torch.reshape(x, (x.shape[0] // n_splits, -1, x.shape[-1]))
 
         return SequenceClassifierOutput(logits=x)
 
