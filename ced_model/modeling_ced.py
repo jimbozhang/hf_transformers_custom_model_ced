@@ -453,19 +453,13 @@ class CedModel(CedPreTrainedModel):
                 splits = torch.stack(splits[:-1], dim=0)
             n_splits = len(splits)
             x = torch.flatten(splits, 0, 1)  # spl b c f t-> (spl b) c f t
-            x = self.forward_head(self.ced(x))
-            x = torch.reshape(
-                x, (n_splits, -1, self.outputdim)
-            )  # (spl b) d -> spl b d, spl=n_splits
-
-            if self.config.eval_avg == "mean":
-                x = x.mean(0)
-            elif self.config.eval_avg == "max":
-                x = x.max(0)[0]
-            else:
-                raise ValueError(f"Unknown Eval average function ({self.eval_avg})")
         else:
-            x = self.forward_features(x)
+            n_splits = 1
+
+        x = self.forward_features(x)
+        if n_splits > 1:
+            x = torch.flatten(x, 0, 1)
+            x = torch.unsqueeze(x, 0)
 
         return SequenceClassifierOutput(logits=x)
 
