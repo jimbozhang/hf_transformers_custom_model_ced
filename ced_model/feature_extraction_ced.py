@@ -16,7 +16,7 @@
 Feature extractor class for CED.
 """
 
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import numpy as np
 import torch
@@ -77,9 +77,11 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
         self.f_max = f_max
         self.hop_size = hop_size
 
+        self.model_input_names = ["input_values"]
+
     def __call__(
         self,
-        x: Union[np.ndarray, torch.Tensor],
+        x: Union[np.ndarray, torch.Tensor, List[np.ndarray], List[torch.Tensor]],
         sampling_rate: Optional[int] = None,
         return_tensors="pt",
     ) -> BatchFeature:
@@ -88,6 +90,10 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
 
         Args:
             x: Input audio signal tensor.
+            sampling_rate (int, *optional*, defaults to `None`):
+                Sampling rate of the input audio signal.
+            return_tensors (str, *optional*, defaults to "pt"):
+                If set to "pt", the return type will be a PyTorch tensor.
 
         Returns:
             BatchFeature: A dictionary containing the extracted features.
@@ -96,9 +102,7 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
             sampling_rate = self.sampling_rate
 
         if return_tensors != "pt":
-            raise NotImplementedError(
-                "Only return_tensors='pt' is currently supported."
-            )
+            raise NotImplementedError("Only return_tensors='pt' is currently supported.")
 
         mel_spectrogram = audio_transforms.MelSpectrogram(
             f_min=self.f_min,
@@ -112,10 +116,38 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
         )
         amplitude_to_db = audio_transforms.AmplitudeToDB(top_db=120)
 
-        x = torch.from_numpy(x).float() if isinstance(x, np.ndarray) else x.float()
-        if x.dim() == 1:
-            x = x.unsqueeze(0)
+        if isinstance(x, np.ndarray):
+            if x.ndim == 1:
+                x = x[np.newaxis, :]
+            if x.ndim != 2:
+                raise ValueError("np.ndarray input must be a 1D or 2D.")
+            x = torch.from_numpy(x)
+        elif isinstance(x, torch.Tensor):
+            if x.dim() == 1:
+                x = x.unsqueeze(0)
+            if x.dim() != 2:
+                raise ValueError("torch.Tensor input must be a 1D or 2D.")
+        elif isinstance(x, (list, tuple)):
+            max_length = max(x_.shape[0] for x_ in x)
+            if all(isinstance(x_, np.ndarray) for x_ in x):
+                if not all(x_.ndim == 1 for x_ in x):
+                    raise ValueError("All np.ndarray in a list must be 1D.")
 
+                x_pad = [np.pad(x_, (0, max_length - x_.shape[0]), mode="constant", constant_values=0) for x_ in x]
+                x = torch.stack([torch.from_numpy(x_) for x_ in x_pad])
+            elif all(isinstance(x_, torch.Tensor) for x_ in x):
+                if not all(x_.dim() == 1 for x_ in x):
+                    raise ValueError("All torch.Tensor in a list must be 1D.")
+                x_pad = [torch.nn.functional.pad(x_, (0, max_length - x_.shape[0]), value=0) for x_ in x]
+                x = torch.stack(x_pad)
+            else:
+                raise ValueError("Input list must be numpy arrays or PyTorch tensors.")
+        else:
+            raise ValueError(
+                "Input must be a numpy array, a list of numpy arrays, a PyTorch tensor, or a list of PyTorch tensor."
+            )
+
+        x = x.float()
         x = mel_spectrogram(x)
         x = amplitude_to_db(x)
         return BatchFeature({"input_values": x})
