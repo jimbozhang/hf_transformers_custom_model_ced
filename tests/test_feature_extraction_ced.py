@@ -48,7 +48,7 @@ class TestCedFeatureExtractor(unittest.TestCase):
 if __name__ == "__main__":
     """
     Run the tests:
-        python -m unittest tests/test_feature_extraction_ced.py
+        python -m unittest tests/*.py
     """
 
     unittest.main()
