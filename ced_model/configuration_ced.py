@@ -125,13 +125,9 @@ class CedConfig(PretrainedConfig):
         self.win_size = kwargs.get("win_size", 512)
 
         if self.outputdim == 527:
-            with open(
-                cached_file("topel/ConvNeXt-Tiny-AT", "class_labels_indices.csv"), "r"
-            ) as f:
+            with open(cached_file("topel/ConvNeXt-Tiny-AT", "class_labels_indices.csv"), "r") as f:
                 self.id2label = {
-                    int(line.split(",", maxsplit=3)[0]): line.split(",", maxsplit=3)[2]
-                    .replace('"', "")
-                    .strip("\n")
+                    int(line.split(",", maxsplit=3)[0]): line.split(",", maxsplit=3)[2].replace('"', "").strip("\n")
                     for line in f.readlines()[1:]
                 }
             self.label2id = {v: k for k, v in self.id2label.items()}

@@ -46,7 +46,7 @@ def rename_key(name):
 @torch.no_grad()
 def convert_ced_checkpoint(model_name, pytorch_dump_folder_path, push_to_hub=False):
     r"""
-    TODO: Add docstring
+    Convert a CED checkpoint from the original repository to a 🤗 Transformers checkpoint.
     """
 
     config = CedConfig(model_name)

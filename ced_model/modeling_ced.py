@@ -106,9 +106,7 @@ class CedAudioPatchEmbed(nn.Module):
         self.num_patches = self.grid_size[0] * self.grid_size[1]
         self.flatten = flatten
 
-        self.proj = nn.Conv2d(
-            in_chans, embed_dim, kernel_size=patch_size, stride=patch_stride
-        )
+        self.proj = nn.Conv2d(in_chans, embed_dim, kernel_size=patch_size, stride=patch_stride)
         self.norm = norm_layer(embed_dim) if norm_layer else nn.Identity()
 
     def forward(self, x):
@@ -143,11 +141,7 @@ class CedAttention(nn.Module):
 
     def forward(self, x):
         B, N, C = x.shape
-        qkv = (
-            self.qkv(x)
-            .reshape(B, N, 3, self.num_heads, C // self.num_heads)
-            .permute(2, 0, 3, 1, 4)
-        )
+        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
         q, k, v = qkv.unbind(0)  # make torchscript happy (cannot use tensor as tuple)
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
@@ -221,9 +215,7 @@ class DropPath(nn.Module):
         return f"drop_prob={round(self.drop_prob,3):0.3f}"
 
 
-def drop_path(
-    x, drop_prob: float = 0.0, training: bool = False, scale_by_keep: bool = True
-):
+def drop_path(x, drop_prob: float = 0.0, training: bool = False, scale_by_keep: bool = True):
     """Drop paths (Stochastic Depth) per sample (when applied in main path of residual blocks).
 
     This is the same as the DropConnect impl I (https://github.com/rwightman) created for EfficientNet, etc networks,
@@ -236,9 +228,7 @@ def drop_path(
     if drop_prob == 0.0 or not training:
         return x
     keep_prob = 1 - drop_prob
-    shape = (x.shape[0],) + (1,) * (
-        x.ndim - 1
-    )  # work with diff dim tensors, not just 2D ConvNets
+    shape = (x.shape[0],) + (1,) * (x.ndim - 1)  # work with diff dim tensors, not just 2D ConvNets
     random_tensor = x.new_empty(shape).bernoulli_(keep_prob)
     if keep_prob > 0.0 and scale_by_keep:
         random_tensor.div_(keep_prob)
@@ -373,17 +363,11 @@ class CedModel(CedPreTrainedModel):
             patch_stride=config.patch_stride,
         )
 
-        self.time_pos_embed = nn.Parameter(
-            torch.randn(1, config.embed_dim, 1, self.patch_embed.grid_size[1]) * 0.02
-        )
-        self.freq_pos_embed = nn.Parameter(
-            torch.randn(1, config.embed_dim, self.patch_embed.grid_size[0], 1) * 0.02
-        )
+        self.time_pos_embed = nn.Parameter(torch.randn(1, config.embed_dim, 1, self.patch_embed.grid_size[1]) * 0.02)
+        self.freq_pos_embed = nn.Parameter(torch.randn(1, config.embed_dim, self.patch_embed.grid_size[0], 1) * 0.02)
         norm_layer = partial(nn.LayerNorm, eps=1e-6)
         act_layer = nn.GELU
-        dpr = [
-            x.item() for x in torch.linspace(0, config.drop_path_rate, config.depth)
-        ]  # stochastic depth decay rule
+        dpr = [x.item() for x in torch.linspace(0, config.drop_path_rate, config.depth)]  # stochastic depth decay rule
         self.pos_drop = nn.Dropout(p=config.drop_rate)
         self.blocks = nn.Sequential(
             *[
@@ -411,9 +395,7 @@ class CedModel(CedPreTrainedModel):
         x = self.patch_embed(x)
         _, _, _, t = x.shape
         x = x + self.time_pos_embed[:, :, :, :t]
-        x = (
-            x + self.freq_pos_embed[:, :, :, :]
-        )  # Just to support __getitem__ in posembed
+        x = x + self.freq_pos_embed[:, :, :, :]  # Just to support __getitem__ in posembed
 
         # x = rearrange(x, 'b c f t -> b (f t) c')
         x = torch.permute(torch.flatten(x, 2, 3), (0, 2, 1))
@@ -442,9 +424,7 @@ class CedModel(CedPreTrainedModel):
 
             if splits[-1].shape[-1] < self.maximal_allowed_length:
                 if self.config.pad_last:
-                    pad = torch.zeros(
-                        *x.shape[:-1], self.maximal_allowed_length, device=x.device
-                    )
+                    pad = torch.zeros(*x.shape[:-1], self.maximal_allowed_length, device=x.device)
                     pad[..., : splits[-1].shape[-1]] = splits[-1]
                     splits = torch.stack((*splits[:-1], pad), dim=0)
                 else:
@@ -497,9 +477,7 @@ class CedForAudioClassification(CedPreTrainedModel):
         elif self.config.pooling == "dm":
             # Unpack using the frequency dimension, which is constant
             # 'b (f t) d -> b f t d', f=self.patch_embed.grid_size[0])
-            x = torch.reshape(
-                x, (x.shape[0], self.patch_embed.grid_size[0], -1, x.shape[3])
-            )
+            x = torch.reshape(x, (x.shape[0], self.patch_embed.grid_size[0], -1, x.shape[3]))
 
             # First poolin frequency, then sigmoid the (B T D) output
             x = self.outputlayer(x.mean(1)).sigmoid()
@@ -507,9 +485,7 @@ class CedForAudioClassification(CedPreTrainedModel):
         else:
             return x.mean(1)
 
-    @add_start_docstrings_to_model_forward(
-        CED_INPUTS_DOCSTRING.format("batch_size, sequence_length")
-    )
+    @add_start_docstrings_to_model_forward(CED_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
         checkpoint=_SEQ_CLASS_CHECKPOINT,
         output_type=SequenceClassifierOutput,
@@ -519,9 +495,7 @@ class CedForAudioClassification(CedPreTrainedModel):
         expected_output=_SEQ_CLASS_EXPECTED_OUTPUT,
         expected_loss=_SEQ_CLASS_EXPECTED_LOSS,
     )
-    def forward(
-        self, input_values: torch.Tensor, labels: Optional[torch.Tensor] = None
-    ):
+    def forward(self, input_values: torch.Tensor, labels: Optional[torch.Tensor] = None):
         """
         Runs a forward pass of the CED model for audio classification task.
 
@@ -555,13 +529,9 @@ class CedForAudioClassification(CedPreTrainedModel):
 
         if labels is not None:
             loss_fct = nn.BCEWithLogitsLoss()
-            labels = nn.functional.one_hot(
-                labels, num_classes=self.config.outputdim
-            ).float()
+            labels = nn.functional.one_hot(labels, num_classes=self.config.outputdim).float()
             loss = loss_fct(logits, labels)
         else:
             loss = None
 
-        return SequenceClassifierOutput(
-            logits=logits, loss=loss, hidden_states=last_hidden_states
-        )
+        return SequenceClassifierOutput(logits=logits, loss=loss, hidden_states=last_hidden_states)

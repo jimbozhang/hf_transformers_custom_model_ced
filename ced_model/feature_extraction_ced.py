@@ -83,6 +83,8 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
         self,
         x: Union[np.ndarray, torch.Tensor, List[np.ndarray], List[torch.Tensor]],
         sampling_rate: Optional[int] = None,
+        max_length: Optional[int] = 16000,
+        truncation: bool = True,
         return_tensors="pt",
     ) -> BatchFeature:
         r"""
@@ -92,6 +94,10 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
             x: Input audio signal tensor.
             sampling_rate (int, *optional*, defaults to `None`):
                 Sampling rate of the input audio signal.
+            max_length (int, *optional*, defaults to 16000):
+                Maximum length of the input audio signal.
+            truncation (bool, *optional*, defaults to `True`):
+                Whether to truncate the input signal to max_length.
             return_tensors (str, *optional*, defaults to "pt"):
                 If set to "pt", the return type will be a PyTorch tensor.
 
@@ -128,12 +134,16 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
             if x.dim() != 2:
                 raise ValueError("torch.Tensor input must be a 1D or 2D.")
         elif isinstance(x, (list, tuple)):
-            max_length = max(x_.shape[0] for x_ in x)
+            longest_length = max(x_.shape[0] for x_ in x)
+            if not truncation and max_length < longest_length:
+                max_length = longest_length
+
             if all(isinstance(x_, np.ndarray) for x_ in x):
                 if not all(x_.ndim == 1 for x_ in x):
                     raise ValueError("All np.ndarray in a list must be 1D.")
 
-                x_pad = [np.pad(x_, (0, max_length - x_.shape[0]), mode="constant", constant_values=0) for x_ in x]
+                x_trim = [x_[:max_length] for x_ in x]
+                x_pad = [np.pad(x_, (0, max_length - x_.shape[0]), mode="constant", constant_values=0) for x_ in x_trim]
                 x = torch.stack([torch.from_numpy(x_) for x_ in x_pad])
             elif all(isinstance(x_, torch.Tensor) for x_ in x):
                 if not all(x_.dim() == 1 for x_ in x):
