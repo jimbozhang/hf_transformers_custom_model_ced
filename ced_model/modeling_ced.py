@@ -391,6 +391,11 @@ class CedModel(CedPreTrainedModel):
         # Initialize weights and apply final processing
         self.post_init()
 
+    def _freeze_parameters(self):
+        for param in self.parameters():
+            param.requires_grad = False
+        self._requires_grad = False
+
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
         x = self.patch_embed(x)
         _, _, _, t = x.shape
@@ -484,6 +489,9 @@ class CedForAudioClassification(CedPreTrainedModel):
             return x.mean(1)
         else:
             return x.mean(1)
+
+    def freeze_encoder(self):
+        self.encoder._freeze_parameters()
 
     @add_start_docstrings_to_model_forward(CED_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
