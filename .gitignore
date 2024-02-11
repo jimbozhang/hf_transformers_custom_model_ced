@@ -152,6 +152,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# Outputs
+mispeech/
+
 # IDEs
 .idea/
 .vscode/
