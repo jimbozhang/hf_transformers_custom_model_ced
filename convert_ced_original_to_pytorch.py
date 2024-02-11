@@ -75,7 +75,7 @@ def convert_ced_checkpoint(model_name, pytorch_dump_folder_path, push_to_hub=Fal
     model = CedForAudioClassification(config)
     model.load_state_dict(new_state_dict)
 
-    feature_extractor = CedFeatureExtractor()
+    feature_extractor = CedFeatureExtractor(return_attention_mask=False)
 
     if pytorch_dump_folder_path is not None:
         Path(pytorch_dump_folder_path).mkdir(exist_ok=True)
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--model_name",
-        default="ced-mini",
+        default="ced-tiny",
         type=str,
         help="Name of the CED model you'd like to convert.",
     )
