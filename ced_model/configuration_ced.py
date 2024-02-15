@@ -123,6 +123,7 @@ class CedConfig(PretrainedConfig):
         self.qkv_bias = qkv_bias
         self.target_length = target_length
         self.win_size = kwargs.get("win_size", 512)
+        self.loss = "BCE"
 
         if self.outputdim == 527:
             with open(cached_file("topel/ConvNeXt-Tiny-AT", "class_labels_indices.csv"), "r") as f:

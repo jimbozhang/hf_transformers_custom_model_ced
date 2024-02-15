@@ -536,7 +536,12 @@ class CedForAudioClassification(CedPreTrainedModel):
         logits = self.forward_head(last_hidden_states)
 
         if labels is not None:
-            loss_fct = nn.BCEWithLogitsLoss()
+            if self.config.loss == "CE":
+                loss_fct = nn.CrossEntropyLoss()
+            elif self.config.loss == "BCE":
+                loss_fct = nn.BCEWithLogitsLoss()
+            else:
+                raise NotImplementedError("Need to set 'CE' or 'BCE' as config.loss.")
             labels = nn.functional.one_hot(labels, num_classes=self.config.outputdim).float()
             loss = loss_fct(logits, labels)
         else:
