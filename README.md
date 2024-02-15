@@ -35,6 +35,6 @@ pip install -r requirements.txt
 'Finger snapping'
 ```
 
-## Finetuning
+## Fine-tuning
 
 [`example_finetune_esc50.ipynb`](https://github.com/jimbozhang/hf_transformers_custom_model_ced/blob/main/example_finetune_esc50.ipynb) demonstrates how to train a linear head on the ESC-50 dataset with the CED encoder frozen.
