@@ -7,11 +7,12 @@ CED are simple ViT-Transformer-based models for audio tagging.
 - **Paper:** [CED: Consistent ensemble distillation for audio tagging](https://arxiv.org/abs/2308.11957)
 - **Demo:** https://huggingface.co/spaces/mispeech/ced-base
 
-## Uses
-
+## Install
 ```bash
 pip install -r requirements.txt
 ```
+
+## Inference
 
 ```python
 >>> from ced_model.feature_extraction_ced import CedFeatureExtractor
@@ -33,3 +34,7 @@ pip install -r requirements.txt
 >>> model.config.id2label[predicted_class_ids]
 'Finger snapping'
 ```
+
+## Finetuning
+
+[`example_finetune_esc50.ipynb`](https://github.com/jimbozhang/hf_transformers_custom_model_ced/blob/main/example_finetune_esc50.ipynb) demonstrates how to train a linear head on the ESC-50 dataset with the CED encoder frozen.
