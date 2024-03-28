@@ -1,0 +1,18 @@
+[project]
+name = 'hf_transformers_custom_model_ced'
+version = '0.0.1'
+
+dependencies = [
+    'torch==2.1.1',
+    'torchaudio==2.1.1',
+    'transformers==4.35.2'
+]
+
+[tool.poetry]
+description = {file = 'README.md', format = 'markdown'}
+authors = ['Junbo Zhang dr.jimbozhang@gmail.com']
+readme = 'README.md'
+requires-python = '>=3.9'
+
+[tool.setuptools.packages.find]
+where = ['.']
