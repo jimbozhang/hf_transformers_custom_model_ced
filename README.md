@@ -9,7 +9,8 @@ CED are simple ViT-Transformer-based models for audio tagging.
 
 ## Install
 ```bash
-pip install -r requirements.txt
+cd hf_transformers_custom_model_ced
+pip install .
 ```
 
 ## Inference
