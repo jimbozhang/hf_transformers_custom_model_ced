@@ -1,4 +1,12 @@
-# Pretrained CED on Hugging Face
+# Pretrained CED on 🤗 Hugging Face
+
+[![arxiv](https://img.shields.io/badge/arXiv-2308.11957-b31b1b)](https://arxiv.org/abs/2308.11957)
+[![dasheng](https://img.shields.io/badge/CED-tiny-ffcc66)](https://huggingface.co/mispeech/ced-tiny)
+[![dasheng](https://img.shields.io/badge/CED-mini-ffcc66)](https://huggingface.co/mispeech/ced-mini)
+[![dasheng](https://img.shields.io/badge/CED-small-ffcc66)](https://huggingface.co/mispeech/ced-small)
+[![dasheng](https://img.shields.io/badge/CED-base-ffcc66)](https://huggingface.co/mispeech/ced-base)
+[![black](https://img.shields.io/badge/Code%20Style-Black-black.svg?labelColor=gray)](https://black.readthedocs.io/en/stable/)
+[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 CED are simple ViT-Transformer-based models for audio tagging.
 
@@ -38,5 +46,7 @@ pip install .
 ```
 
 ## Fine-tuning
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jimbozhang/hf_transformers_custom_model_ced/blob/main/example_finetune_esc50.ipynb)
 
 [`example_finetune_esc50.ipynb`](https://github.com/jimbozhang/hf_transformers_custom_model_ced/blob/main/example_finetune_esc50.ipynb) demonstrates how to train a linear head on the ESC-50 dataset with the CED encoder frozen.
