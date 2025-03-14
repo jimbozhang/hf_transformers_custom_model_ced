@@ -541,7 +541,7 @@ class CedForAudioClassification(CedPreTrainedModel):
             except AttributeError:
                 raise NotImplementedError(f"Loss {self.config.loss} not implemented.")
 
-            labels = nn.functional.one_hot(labels, num_classes=self.outputdim).float()
+            labels = nn.functional.one_hot(labels, num_classes=self.config.outputdim).float()
             loss = loss_fct(logits, labels)
         else:
             loss = None
