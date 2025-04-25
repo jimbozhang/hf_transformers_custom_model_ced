@@ -1,8 +1,9 @@
 [project]
 name = 'hf_transformers_custom_model_ced'
-version = '0.0.1'
+version = '0.0.2'
 
 dependencies = [
+    'numpy==1.26.4',
     'torch==2.1.1',
     'torchaudio==2.1.1',
     'transformers==4.35.2'
