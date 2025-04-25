@@ -14,6 +14,12 @@ class TestCedFeatureExtractor(unittest.TestCase):
         y = feature_extractor(x)
         assert y["input_values"].shape == (2, 64, 101)
 
+    def test_extract_feature_from_pt_tensor_long(self):
+        feature_extractor = CedFeatureExtractor()
+        x = torch.randn(2, 160000)
+        y = feature_extractor(x)
+        assert y["input_values"].shape == (2, 64, 1001)
+
     def test_extract_feature_from_np_array(self):
         feature_extractor = CedFeatureExtractor()
         x = np.random.rand(2, 16000)
@@ -35,7 +41,7 @@ class TestCedFeatureExtractor(unittest.TestCase):
     def test_extract_feature_from_list_of_np_arrays_pad(self):
         feature_extractor = CedFeatureExtractor()
         x = [np.random.rand(10), np.random.rand(16000)]
-        y = feature_extractor(x, max_length=32000)
+        y = feature_extractor(x, max_length=32000, truncation=True)
         assert y["input_values"].shape == (2, 64, 201)
 
     def test_extract_feature_from_list_of_np_arrays_pad_trim(self):

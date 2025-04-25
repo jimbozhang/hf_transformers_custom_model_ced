@@ -83,8 +83,8 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
         self,
         x: Union[np.ndarray, torch.Tensor, List[np.ndarray], List[torch.Tensor]],
         sampling_rate: Optional[int] = None,
-        max_length: Optional[int] = 16000,
-        truncation: bool = True,
+        max_length: Optional[int] = None,
+        truncation: bool = False,
         return_tensors="pt",
     ) -> BatchFeature:
         r"""
@@ -94,9 +94,9 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
             x: Input audio signal tensor.
             sampling_rate (int, *optional*, defaults to `None`):
                 Sampling rate of the input audio signal.
-            max_length (int, *optional*, defaults to 16000):
+            max_length (int, *optional*, defaults to None):
                 Maximum length of the input audio signal.
-            truncation (bool, *optional*, defaults to `True`):
+            truncation (bool, *optional*, defaults to `False`):
                 Whether to truncate the input signal to max_length.
             return_tensors (str, *optional*, defaults to "pt"):
                 If set to "pt", the return type will be a PyTorch tensor.
@@ -135,8 +135,11 @@ class CedFeatureExtractor(SequenceFeatureExtractor):
                 raise ValueError("torch.Tensor input must be a 1D or 2D.")
         elif isinstance(x, (list, tuple)):
             longest_length = max(x_.shape[0] for x_ in x)
-            if not truncation and max_length < longest_length:
+            if not truncation and max_length is not None and max_length < longest_length:
                 max_length = longest_length
+            if not truncation and max_length is None:
+                max_length = longest_length
+
 
             if all(isinstance(x_, np.ndarray) for x_ in x):
                 if not all(x_.ndim == 1 for x_ in x):
